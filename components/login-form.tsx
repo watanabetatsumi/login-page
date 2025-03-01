@@ -19,11 +19,15 @@ const USERS = [
 
 export default function LoginForm() {
   const router = useRouter()
+  // 定数を宣言しつつ、更新する関数もセットで作ってる。useStateはWebページ上で動的な値を持つためのもの
+  // 静的なページは基本的に定数になる
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const [isLoading, setIsLoading] = useState(false)
 
+  // 関数をhandleSubmitという定数として定義
+  // 非同期処理とすることで、ページを表示しつつ、処理を行うことができる（ログインボタンでぐるぐる）
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
