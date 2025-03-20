@@ -34,6 +34,10 @@ module "keypair" {
     source = "../../modules/ssh_key"
 }
 
+module "iam_roles" {
+    source = "../../modules/iam"
+}
+
 module "security_group" {
     source = "../../modules/security_group"
 
@@ -66,4 +70,5 @@ module "ec2" {
         ]
     security_group_id = module.security_group.security_group_id_ec2
     elb_target_group_arn = module.elb.elb_target_group_arn
+    ec2_role_profile = module.iam_roles.ec2_role_profile
 }

@@ -8,6 +8,9 @@ resource "aws_launch_template" "ec2_template"{
       associate_public_ip_address = true
       security_groups = [var.security_group_id]
     }
+    iam_instance_profile {
+      name = var.ec2_role_profile
+    }
 }
 
 # スケールのさせ方

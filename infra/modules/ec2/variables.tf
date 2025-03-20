@@ -11,3 +11,7 @@ variable security_group_id {
 variable elb_target_group_arn {
     type = string
 }
+
+variable ec2_role_profile {
+    type = string
+}
