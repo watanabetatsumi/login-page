@@ -11,7 +11,7 @@ resource  "aws_subnet" "public_a" {
     vpc_id = aws_vpc.main.id
     cidr_block = cidrsubnet(var.cidr_block, 8, 1)
     availability_zone = "ap-northeast-1a"
-    # map_public_ip_on_launch = true
+    map_public_ip_on_launch = true
     tags = {
         Name = "PublicSubnet_C-from-Terraform-${var.stage}"
     }

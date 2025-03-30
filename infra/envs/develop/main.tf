@@ -7,12 +7,6 @@ module "provider" {
     region = var.region
 }
 
-module "ACM" {
-    source = "../../modules/acm"
-
-    domain_name = var.domain_name
-}
-
 module "vpc" {
     source = "../../modules/vpc"
 
@@ -44,6 +38,35 @@ module "security_group" {
     vpc_id = module.vpc.vpc_id
 }
 
+module "s3" {
+    source = "../../modules/s3_bucket"
+}
+
+module "db" {
+    source = "../../modules/dynamoDB"
+}
+
+# module "apigateway" {
+#     source = "../../modules/apigateway"
+
+#     readDBfunc = module.lambda.readDBfunc
+# }
+
+# module "lambda" {
+#     source = "../../modules/lambda"
+
+#     dbname = module.db.dbname
+#     db_write_role_arn = module.iam_roles.dynamoDB_write_role
+#     db_read_role_arn = module.iam_roles.dynamoDB_read_role
+#     lambda_execution_role = module.iam_roles.lambda_execution_role
+# }
+
+module "ACM" {
+    source = "../../modules/acm"
+
+    domain_name = var.domain_name
+}
+
 module "elb" {
     source = "../../modules/loadbalancer"
 
@@ -71,4 +94,13 @@ module "ec2" {
     security_group_id = module.security_group.security_group_id_ec2
     elb_target_group_arn = module.elb.elb_target_group_arn
     ec2_role_profile = module.iam_roles.ec2_role_profile
+}
+
+module "codeDeploy"{
+    source = "../../modules/cicd"
+
+    iam_code_deploy_arn = module.iam_roles.codedeploy_role
+    ec2_auto_scaling_group_name = module.ec2.autoscaling_group_name
+    elb_name = module.elb.elb_name
+    elb_target_group_name = module.elb.elb_target_gruop_name
 }

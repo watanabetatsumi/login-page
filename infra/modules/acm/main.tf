@@ -1,5 +1,5 @@
 # route53にドメインを登録する。（ホストゾーンを作成する）
-resource aws_route53_zone "r53_zone" {
+resource "aws_route53_zone" "r53_zone" {
   name = var.domain_name
 }
 # NS（ネームサーバ）レコード（AWSのどの権威DNSサーバーが知っているのか）が生成される
@@ -11,7 +11,7 @@ resource "aws_acm_certificate" "certificate" {
 }
 
 # CNAMEレコードの登録
-resource aws_route53_record "cert_validation" {
+resource "aws_route53_record" "cert_validation" {
   for_each = {
     for dvo in aws_acm_certificate.certificate.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
@@ -28,7 +28,7 @@ resource aws_route53_record "cert_validation" {
 }
 
 # 証明書の検証
-resource aws_acm_certificate_validation cert {
+resource "aws_acm_certificate_validation" "cert" {
   certificate_arn = aws_acm_certificate.certificate.arn
   validation_record_fqdns = values(aws_route53_record.cert_validation)[*].fqdn
 }

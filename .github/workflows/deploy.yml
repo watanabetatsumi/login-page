@@ -1,0 +1,41 @@
+name: Deploy to AWS CodeDeploy
+on:
+    push:
+        branches:
+            - main # mainブランチにpushされたらトリガー
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: チェックアウト（Githubリポジトリのコード取得）
+              uses: actions/checkout@v2
+            
+            - name: AWS 認証
+              uses: aws-actions/configure-aws-credentials@v1
+              with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ap-northeast-1 # 東京リージョンにデプロイする場合
+            
+            - name: ZIPファイルの作成
+              run: |
+                VERSION=$(date +%Y%m%d%H%M%S)
+                zip -r app-${VERSION}.zip . -x "*.git*" # .gitディレクトリを除外してZIPファイルを作成
+
+            - name: S3にアップロード
+              run: |
+                  VERSION=$(date +%Y%m%d%H%M%S)
+                  aws s3 cp app-${VERSION}.zip s3://codedeploy-bucket-terraform/app-${VERSION}.zip # S3バケットにZIPファイルをアップロード
+            
+            - name: CodeDeployにデプロイ
+              run: |
+                aws deploy create-deployment \
+                    --application-name App \
+                    --deployment-group-name cicd_group_EC2s \
+                    --s3-location
+                        bucket=codedeploy-bucket-terraform,
+                        bundleType=zip,
+                        key=app-${VERSION}.zip \
+

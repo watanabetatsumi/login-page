@@ -31,3 +31,5 @@ next-env.d.ts
 
 # ssh_key
 .ssh/
+
+terraform.tfstate*

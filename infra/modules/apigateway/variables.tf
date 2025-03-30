@@ -1,0 +1,3 @@
+variable "readDBfunc" {
+  type = string
+}
