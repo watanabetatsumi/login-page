@@ -31,6 +31,7 @@ jobs:
             
             - name: CodeDeployにデプロイ
               run: |
+                VERSION=$(date +%Y%m%d%H%M%S)
                 aws deploy create-deployment \
                     --application-name App \
                     --deployment-group-name cicd_group_EC2s \
