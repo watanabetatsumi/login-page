@@ -35,6 +35,5 @@ jobs:
                 aws deploy create-deployment \
                     --application-name App \
                     --deployment-group-name cicd_group_EC2s \
-                    --s3-location
-                        bucket=codedeploy-bucket-terraform,bundleType=zip,key=app-${VERSION}.zip
+                    --s3-location "bucket=codedeploy-bucket-terraform,bundleType=zip,key=app-${VERSION}.zip"
 
