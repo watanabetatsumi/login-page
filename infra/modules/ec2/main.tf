@@ -11,6 +11,33 @@ resource "aws_launch_template" "ec2_template"{
     iam_instance_profile {
       name = var.ec2_role_profile
     }
+    user_data = base64encode(<<-EOF
+    #!/bin/bash
+    set -e  # エラーが発生したらスクリプトを停止
+
+    # Nginx のインストールと起動
+    sudo apt-get update -y
+    sudo apt-get install -y nginx ruby wget
+    sudo systemctl start nginx
+    sudo systemctl enable nginx
+
+    # CodeDeploy Agent のインストール
+    cd /tmp
+    wget https://aws-codedeploy-ap-northeast-1.s3.ap-northeast-1.amazonaws.com/latest/install
+    chmod +x ./install
+    sudo ./install auto
+    sudo systemctl enable codedeploy-agent
+    sudo systemctl start codedeploy-agent
+    EOF
+    )
+
+    tag_specifications {
+      resource_type = "instance"
+      tags = {
+        Name        = "MyEC2Instance"
+        CodeDeploy  = "Target"  # この行が CodeDeploy 用のタグです
+      }
+    }
 }
 
 # スケールのさせ方

@@ -1,6 +1,6 @@
 # EC2のみが扱えるロールを作成
 resource "aws_iam_role" "ec2_role" {
-    name = "EC2_Code_Deploy_Role"
+    name = "EC2_Role"
 
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
@@ -14,10 +14,32 @@ resource "aws_iam_role" "ec2_role" {
     })
 }
 
-resource "aws_iam_policy_attachment" "ec2_role_policy" {
-    name = "EC2_Code_Deploy_Policy"
-    roles = [aws_iam_role.ec2_role.name] 
-    policy_arn = "arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+resource "aws_iam_policy" "ec2_custom_policy" {
+  name        = "EC2_Custom_Policy"
+  description = "EC2 用のカスタムポリシー（EC2, SSM, CodeDeploy, S3 の権限を統合）"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:*",
+          "ssm:*",
+          "codedeploy:*",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# 1つのポリシーを IAM ロールにアタッチ
+resource "aws_iam_policy_attachment" "ec2_custom_policy_attachment" {
+  name       = "EC2_Custom_Policy_Attachment"
+  roles      = [aws_iam_role.ec2_role.name]
+  policy_arn = aws_iam_policy.ec2_custom_policy.arn
 }
 
 # EC2にIAMロールを適用するためのプロファイルを作成
@@ -27,7 +49,7 @@ resource "aws_iam_instance_profile" "ec2_role_profile" {
 }
 
 resource "aws_iam_role" "codedeploy_role" {
-    name = "CodeDeploy_Role"
+    name = "CodeDeploy_Service_Role"
 
     assume_role_policy = jsonencode({
         Version = "2012-10-17"
@@ -41,11 +63,12 @@ resource "aws_iam_role" "codedeploy_role" {
     })
 }
 
-resource "aws_iam_policy_attachment" "codedeploy_role_policy" {
-    name = "CodeDeploy_Policy"
-    roles = [aws_iam_role.codedeploy_role.name] 
+resource "aws_iam_policy_attachment" "codedeploy_policy" {
+    name       = "CodeDeploy_Service_Policy"
+    roles      = [aws_iam_role.codedeploy_role.name]
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
 }
+
 
 resource "aws_iam_role" "dynamodb_role_r"{
     name = "DynamoDB_ReadOnly_Role"
@@ -238,10 +261,7 @@ resource "aws_iam_policy" "github_actions_s3_codedeploy_policy" {
       {
         Effect = "Allow"
         Action = [
-          "codedeploy:CreateDeployment",
-          "codedeploy:GetDeployment",
-          "codedeploy:GetDeploymentGroup",
-          "codedeploy:ListDeployments"
+          "codedeploy:*"
         ]
         Resource = "*"
       }
