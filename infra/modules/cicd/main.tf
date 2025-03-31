@@ -13,18 +13,18 @@ resource "aws_codedeploy_deployment_group" "cicd_group" {
 
     deployment_style {
         deployment_option = "WITH_TRAFFIC_CONTROL"
-        deployment_type = "IN_PLACE"
+        deployment_type = "BLUE_GREEN"
     }
 
-    # blue_green_deployment_config {
-    #     deployment_ready_option {
-    #       action_on_timeout = "CONTINUE_DEPLOYMENT"
-    #     }
+    blue_green_deployment_config {
+        deployment_ready_option {
+          action_on_timeout = "CONTINUE_DEPLOYMENT"
+        }
 
-    #     terminate_blue_instances_on_deployment_success {
-    #         action = "TERMINATE"
-    #     }
-    # }
+        terminate_blue_instances_on_deployment_success {
+            action = "TERMINATE"
+        }
+    }
 
     ec2_tag_set {
         ec2_tag_filter {
@@ -35,9 +35,6 @@ resource "aws_codedeploy_deployment_group" "cicd_group" {
     }
 
     load_balancer_info {
-        elb_info {
-            name = var.elb_name
-        }
         target_group_info {
             name = var.elb_target_group_name
         }
