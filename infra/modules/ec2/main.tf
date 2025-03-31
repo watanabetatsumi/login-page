@@ -47,7 +47,7 @@ resource "aws_autoscaling_group" "ec2_asg" {
     min_size = 1
     desired_capacity = 1
     health_check_grace_period = 300
-    health_check_type = "EC2"
+    health_check_type = "ELB"
     enabled_metrics = ["GroupInServiceInstances"]
     launch_template {
       id = aws_launch_template.ec2_template.id
