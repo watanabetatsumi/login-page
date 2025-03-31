@@ -27,7 +27,8 @@ resource "aws_iam_policy" "ec2_custom_policy" {
           "ssm:*",
           "codedeploy:*",
           "s3:GetObject",
-          "s3:ListBucket"
+          "s3:ListBucket",
+          "iam:*"
         ]
         Resource = "*"
       }
@@ -63,10 +64,34 @@ resource "aws_iam_role" "codedeploy_role" {
     })
 }
 
+resource "aws_iam_policy" "custom_codedeploy_policy" {
+    name = "Custom_CodeDeploy_Policy"
+    description = "Custom policy for CodeDeploy"
+
+    policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [{
+            Effect = "Allow"
+            Action = [
+                "codedeploy:*",
+                "s3:*",
+                "iam:*",
+                "ec2:*",
+                "cloudwatch:*",
+                "autoscaling:*",
+                "elasticloadbalancing:*",
+                "tag:GetResources",
+                "iam:*"
+            ]
+            Resource = "*"
+        }]
+    })
+}
+
 resource "aws_iam_policy_attachment" "codedeploy_policy" {
     name       = "CodeDeploy_Service_Policy"
     roles      = [aws_iam_role.codedeploy_role.name]
-    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"
+    policy_arn = aws_iam_policy.custom_codedeploy_policy.arn
 }
 
 
