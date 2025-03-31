@@ -21,17 +21,17 @@ jobs:
             
             - name: ZIPファイルの作成
               run: |
-                VERSION=$(date +%Y%m%d%H%M%S)
+                VERSION=$(date +%Y%m%d%H)
                 zip -r app-${VERSION}.zip . -x "*.git*" # .gitディレクトリを除外してZIPファイルを作成
 
             - name: S3にアップロード
               run: |
-                  VERSION=$(date +%Y%m%d%H%M%S)
+                  VERSION=$(date +%Y%m%d%H)
                   aws s3 cp app-${VERSION}.zip s3://codedeploy-bucket-terraform/app-${VERSION}.zip # S3バケットにZIPファイルをアップロード
             
             - name: CodeDeployにデプロイ
               run: |
-                VERSION=$(date +%Y%m%d%H%M%S)
+                VERSION=$(date +%Y%m%d%H)
                 aws deploy create-deployment \
                     --application-name App \
                     --deployment-group-name cicd_group_EC2s \
