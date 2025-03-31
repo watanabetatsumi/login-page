@@ -26,6 +26,14 @@ resource "aws_codedeploy_deployment_group" "cicd_group" {
     #     }
     # }
 
+    ec2_tag_set {
+        ec2_tag_filter {
+        key   = "CodeDeploy"
+        type  = "KEY_AND_VALUE"
+        value = "Target"
+        }
+    }
+
     load_balancer_info {
         elb_info {
             name = var.elb_name
